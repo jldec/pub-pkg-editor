@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>pub editor - {{name}}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/editor.css">
+</head>
+<body>
+<div class="upload">
+<h3>{{name}}</h3>
+<form method="POST" enctype="multipart/form-data">
+{{{html}}}
+</form>
+{{#eachUpload}}<pre>![](/images/{{{name}}}){{s3Err}}
+</pre>
+<img src="{{opts 'fqImages'}}/images/{{name}}"><br>
+{{opts 'fqImages'}}/images/{{name}}
+{{/eachUpload}}
+</div>
+<script src="/pub/js/jquery-1.11.2.min.js"></script>
+</body>
+</html>

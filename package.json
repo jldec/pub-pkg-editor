@@ -1,0 +1,17 @@
+{
+  "name": "pub-pkg-editor",
+  "version": "0.5.0",
+  "description": "simple markdown editor for pub-server",
+  "main": "pub-config.js",
+  "dependencies": {
+    "humane-js": "*",
+    "page": "*"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jldec/pub-pkg-editor.git"
+  },
+  "author": "jurgen leschner",
+  "license": "MIT"
+}
