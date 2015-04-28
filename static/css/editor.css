@@ -33,7 +33,7 @@ box-shadow: 4px 4px 3px #999;
 
 /* header layout */
 .menubutton.col { left:0; width:25px; text-align:center; }
-.commitbutton.col { left:25px; width:25px; text-align:center; }
+.savebutton.col { left:25px; width:25px; text-align:center; }
 .name.col { left:50px; right:50px; padding-left:0.5em; }
 .helpbutton.col { right:0; width:25px; text-align:center; color:#ddd; text-decoration:none; }
 .editbutton.col { right:25px; width:25px; text-align:center; font-size:1.2em; }
@@ -53,7 +53,10 @@ box-shadow: 4px 4px 3px #999;
 
 .error { background-color:#d66; color:#fff; overflow-y:auto; }
 .clickable { cursor:pointer; opacity:0.7; }
-.clickable:hover { background-color:#eee; color:#333; font-size:1.5em; }
+.clickable:hover { background-color:#eee; color:#333; font-size:1.4em; }
+
+.clickable.hide { background-color:#666; color:#666; }
+.clickable.hide:hover { background-color:#666; color:#fff; }
 
 textarea.editor { width:100%; height:100%; border:none; border-left:0.5em solid #fff; color:#333; background:#fff; resize:none; overflow:auto; font-family:Monaco,monospace; }
 textarea.showcontrols { height:69%; bottom:0; }

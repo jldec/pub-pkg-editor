@@ -1,11 +1,11 @@
 {
   "name": "pub-pkg-editor",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "simple markdown editor for pub-server",
   "main": "pub-config.js",
   "dependencies": {
-    "humane-js": "*",
-    "page": "*"
+    "humane-js": "^3.2.2",
+    "page": "^1.6.3"
   },
   "devDependencies": {},
   "repository": {

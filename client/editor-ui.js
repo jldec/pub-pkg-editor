@@ -25,6 +25,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
   var editor =
     { $name:   $('.name'),            // jquery name area in header
       $edit:   $('textarea.editor'),  // jquery editor textarea
+      $save:   $('.savebutton'),      // jquery save button
 
       // binding is the _href of fragment being edited
       // NOTE: don't bind by ref! recompile invalidates refs
@@ -50,16 +51,19 @@ window.onGeneratorLoaded = function editorUI(generator) {
   generator.on('loaded', handleNav);
   generator.on('notify', function(s) { log(s); humane.log(s); });
 
-  $( window ).on('beforeunload', function() { generator.clientSave(); });
+  $( window ).on('beforeunload', function() {
+    generator.clientSaveHoldText();
+    generator.clientSave();
+  });
 
   $('.editbutton').click(toggleFragments);
+  $('.savebutton').click(save);
 
   /* disabled menu links
   // either do single action in editor or show iframe e.g for upload
 
   $('.panebutton').click(togglePanes);
   $('.menubutton').click(toggleForm);
-  $('.commitbutton').click(toggleList);
   $('.name').click(revertEdits);
   $('.helpbutton').click(help);
 
@@ -170,7 +174,14 @@ window.onGeneratorLoaded = function editorUI(generator) {
   function bindEditor(fragment) {
     if (fragment) {
       editor.$name.text(fragment._href);
-      editor.$edit.val(fragment._hdr + fragment._txt);
+      if (fragment._holdUpdates) {
+        editor.$edit.val(fragment._holdText);
+        editor.$save.removeClass('hide');
+      }
+      else {
+        editor.$edit.val(fragment._hdr + fragment._txt);
+        editor.$save.addClass('hide');
+      }
       editor.binding = fragment._href;
     }
     else {
@@ -183,7 +194,16 @@ window.onGeneratorLoaded = function editorUI(generator) {
   // register updates from editor using editor.binding
   function editorUpdate() {
     if (editor.binding) {
-      generator.clientUpdateFragmentText(editor.binding, editor.$edit.val());
+      if ('hold' === generator.clientUpdateFragmentText(editor.binding, editor.$edit.val())) {
+        editor.$save.removeClass('hide');
+      }
+    }
+  }
+
+  // save with breakHold - may result in modified href ==> loss of binding context?
+  function save() {
+    if (editor.binding) {
+      generator.clientUpdateFragmentText(editor.binding, editor.$edit.val(), true);
     }
   }
 
