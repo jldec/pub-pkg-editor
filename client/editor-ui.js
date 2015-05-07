@@ -53,7 +53,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   $( window ).on('beforeunload', function() {
     generator.clientSaveHoldText();
-    generator.clientSave();
+    generator.clientSaveUnThrottled(); // throttled version may do nothing
   });
 
   $('.editbutton').click(toggleFragments);
