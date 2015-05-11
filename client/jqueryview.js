@@ -21,7 +21,7 @@ module.exports = function(generator, $) {
   var opts = generator.opts;
   var log = opts.log;
 
-  // if there is no data-render-layout attribute, updateLayout will complain
+  // if there is no data-render-layout attribute, updateLayout will not be called
   var $layout = $('[data-render-layout]');
 
   var view = {
@@ -76,7 +76,7 @@ module.exports = function(generator, $) {
       $layout.html(generator.renderLayout(newpage));
       $layout.attr('data-render-layout', layout);
       log('updateLayout', path, query, hash);
-      generator.emit('update-view', path, query, hash);
+      generator.emit('update-view', path, query, hash, !reload);
     }
 
     function updatePage() {
@@ -86,7 +86,7 @@ module.exports = function(generator, $) {
       $page.html(generator.renderPage(newpage));
       $page.attr('data-render-page', newpage._href);
       log('updatePage:', path, query, hash)
-      generator.emit('update-view', path, query, hash);
+      generator.emit('update-view', path, query, hash, !reload);
     }
 
     // return true if newpage layout is different from current layout

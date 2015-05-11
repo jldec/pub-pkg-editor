@@ -90,9 +90,6 @@ window.onGeneratorLoaded = function editorUI(generator) {
   // restore pane dimensions
   resizeEditor(-1);
 
-  // editor events
-  editor.$edit.on('keyup', editorUpdate);
-
   // preview iframe onload handler - initializes pwindow and $css
   function previewOnLoad() {
     pwindow = iframe.contentWindow;
@@ -175,20 +172,30 @@ window.onGeneratorLoaded = function editorUI(generator) {
     if (fragment) {
       editor.$name.text(fragment._href);
       if (fragment._holdUpdates) {
-        editor.$edit.val(fragment._holdText);
+        editText(fragment._holdText);
         editor.$save.removeClass('hide');
       }
       else {
-        editor.$edit.val(fragment._hdr + fragment._txt);
+        editText(fragment._hdr + fragment._txt);
         editor.$save.addClass('hide');
       }
       editor.binding = fragment._href;
     }
     else {
       editor.$name.text('');
-      editor.$edit.val('');
+      editText('');
       editor.binding = '';
     }
+  }
+  
+  // replace text in editor using clone()
+  // firefox gotcha: undo key mutates content after nav-triggered $edit.val() 
+  // assume that jquery takes care of removing keyup handler
+  function editText(text) {
+    var $newedit = editor.$edit.clone().val(text);
+    editor.$edit.replaceWith($newedit);
+    editor.$edit = $newedit;
+    editor.$edit.on('keyup', editorUpdate);
   }
 
   // register updates from editor using editor.binding
