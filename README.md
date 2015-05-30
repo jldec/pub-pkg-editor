@@ -28,6 +28,6 @@ This editor is packaged as a pub-pkg (see `pub-config.js`)
 - in order to maximize responsiveness, the editor relies on data attributes on html tags to replace just the affected HTML
 
 
-- `data-render-layout` = name of the layout template - container element with this attribute must wrap {{{renderLayout}}})
-- `data-render-page` = name of the page template - container with this attribute must wrap {{{renderPage}}}
+- `data-render-layout` = name of layout template - wrapper auto-inserted by {{{renderLayout}}})
+- `data-render-page` = name of page template - wrapper div auto-inserted by  {{{renderPage}}}
 - `data-render-html` = _href of fragment or page - wrapper div auto-inserted by {{{html}}}

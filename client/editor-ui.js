@@ -187,9 +187,9 @@ window.onGeneratorLoaded = function editorUI(generator) {
       editor.binding = '';
     }
   }
-  
+
   // replace text in editor using clone()
-  // firefox gotcha: undo key mutates content after nav-triggered $edit.val() 
+  // firefox gotcha: undo key mutates content after nav-triggered $edit.val()
   // assume that jquery takes care of removing keyup handler
   function editText(text) {
     var $newedit = editor.$edit.clone().val(text);
