@@ -13,6 +13,8 @@
  * data-render-fragment
  * data-render-html
  *
+ * NOTE: relPath support does not work in dynamic views, only used on output
+ *       fixing this means modifying all relPaths on each level-changing nav
  *
 **/
 
@@ -53,7 +55,7 @@ module.exports = function(generator, $) {
     hash =  hash  || (reload && location.hash)   || '';
 
     var newpage = generator.findPage(path);
-    if (!newpage) return generator.notify('Oops, jqueryview cannot find page ' + path);
+    if (!newpage) return generator.emit('notify', 'Oops, jqueryview cannot find page ' + path);
     var oldpage = generator.findPage(location.pathname);
 
     if (!reload && newpage === oldpage) return; // hash navigation doesn't require repaint
