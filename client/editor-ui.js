@@ -10,7 +10,7 @@
  * copyright 2015, Jurgen Leschner - github.com/jldec - MIT license
 */
 
-var humane = require('humane-js').create({timeout:3000});
+var humane = require('humane-js').create({timeout:600});
 
 window.onGeneratorLoaded = function editorUI(generator) {
 
