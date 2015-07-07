@@ -113,6 +113,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
     $css = p$('<link rel="stylesheet" href="/pub/css/pub-preview.css">');
     p$('head').append($css);
     $css.get(0).disabled = true;
+    toggleFragments();
 
     var $script = p$('<script src="/pub/js/pub-preview.js"></script>');
     p$('body').append($script);
@@ -150,7 +151,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
     if (el && (href = el.getAttribute('data-render-html'))) {
       bindEditor(generator.fragment$[href]);
     }
-    toggleFragments();  // single fragment select less confusing
+//    toggleFragments();  // single fragment select less confusing
     e.preventDefault(); // will also stop pager because it checks for e.defaultPrevented
   }
 
