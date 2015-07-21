@@ -32,8 +32,8 @@ box-shadow: 4px 4px 3px #999;
 .main.row { top:25px; bottom:0; }
 
 /* header layout */
-.menubutton.col { left:0; width:25px; text-align:center; }
-.savebutton.col { left:25px; width:25px; text-align:center; }
+.savebutton.col { left:0; width:25px; text-align:center; }
+.menubutton.col { left:25px; width:25px; text-align:center; }
 .name.col { left:50px; right:50px; padding-left:0.5em; }
 .helpbutton.col { right:0; width:25px; text-align:center; color:#ddd; text-decoration:none; }
 .editbutton.col { right:25px; width:25px; text-align:center; font-size:1.2em; }

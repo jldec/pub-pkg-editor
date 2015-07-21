@@ -77,7 +77,7 @@ module.exports = function(generator, $) {
       var layout = generator.layoutTemplate(newpage);
       $layout.html(generator.renderLayout(newpage));
       $layout.attr('data-render-layout', layout);
-      log('updateLayout', path, query, hash);
+      log('jqueryview updateLayout', path, query, hash);
       generator.emit('update-view', path, query, hash, !reload);
     }
 
@@ -87,7 +87,7 @@ module.exports = function(generator, $) {
 
       $page.html(generator.renderPage(newpage));
       $page.attr('data-render-page', newpage._href);
-      log('updatePage:', path, query, hash)
+      log('jqueryview updatePage:', path, query, hash)
       generator.emit('update-view', path, query, hash, !reload);
     }
 
@@ -110,7 +110,7 @@ module.exports = function(generator, $) {
     if (!$html) return generator.emit('notify', 'Oops, jqueryview cannot update html for fragment: ' + href);
 
     $html.html(generator.renderHtml(fragment));
-    log('updateHtml', location.pathname, location.search, location.hash);
+    log('jqueryview updateHtml', location.pathname, location.search, location.hash);
     generator.emit('update-view', location.pathname, location.search, location.hash);
   }
 

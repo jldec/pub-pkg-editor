@@ -52,12 +52,17 @@ window.onGeneratorLoaded = function editorUI(generator) {
   generator.on('notify', function(s) { log(s); humane.log(s); });
 
   $( window ).on('beforeunload', function() {
+    log('beforeunload')
     generator.clientSaveHoldText();
     generator.clientSaveUnThrottled(); // throttled version may do nothing
   });
 
   $('.editbutton').click(toggleFragments);
-  $('.savebutton').click(save);
+
+  // show save button on the static host
+  if (opts.staticHost) {
+    $('.savebutton').removeClass('hide').click(generator.clientSave);
+  }
 
   /* disabled menu links
   // either do single action in editor or show iframe e.g for upload
@@ -170,15 +175,14 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   // change editingHref to a different fragment or page
   function bindEditor(fragment) {
+    saveBreakHold();
     if (fragment) {
       editor.$name.text(fragment._href);
       if (fragment._holdUpdates) {
         editText(fragment._holdText);
-        editor.$save.removeClass('hide');
       }
       else {
         editText(fragment._hdr + fragment._txt);
-        editor.$save.addClass('hide');
       }
       editor.binding = fragment._href;
     }
@@ -203,15 +207,16 @@ window.onGeneratorLoaded = function editorUI(generator) {
   function editorUpdate() {
     if (editor.binding) {
       if ('hold' === generator.clientUpdateFragmentText(editor.binding, editor.$edit.val())) {
-        editor.$save.removeClass('hide');
+        editor.holding = true;
       }
     }
   }
 
   // save with breakHold - may result in modified href ==> loss of binding context?
-  function save() {
-    if (editor.binding) {
+  function saveBreakHold() {
+    if (editor.binding && editor.holding) {
       generator.clientUpdateFragmentText(editor.binding, editor.$edit.val(), true);
+      editor.holding = false;
     }
   }
 
