@@ -20,14 +20,4 @@ This editor is packaged as a pub-pkg (see `pub-config.js`)
 - output is rendered into an iframe so that website html is reproduced exactly
 - while navigating in the preview, the page or fragment markdown source is made editable via the textarea on the left
 - fragments require additional fragment-selection ui overlaid in preview when necessary
-
-### html template guidelines
-
-- when content is modified an attempt is made to determine whether the edit affects the layout, the page or fragment container, or just the  html rendered from markdown
-
-- in order to maximize responsiveness, the editor relies on data attributes on html tags to replace just the affected HTML
-
-
-- `data-render-layout` = name of layout template - wrapper auto-inserted by {{{renderLayout}}})
-- `data-render-page` = name of page template - wrapper div auto-inserted by  {{{renderPage}}}
-- `data-render-html` = _href of fragment or page - wrapper div auto-inserted by {{{html}}}
+- see [pub-preview](https://github.com/jldec/pub-preview) for more details.

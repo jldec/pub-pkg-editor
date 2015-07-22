@@ -16,8 +16,8 @@ module.exports =
   ],
 
   browserScripts: [
-    { path: './client/editor-ui.js',   route: '/pub/js' },
-    { path: './client/pub-preview.js', route: '/pub/js' }
+    { path: './client/editor-ui.js', route: '/pub/js' },
+    { path: require('pub-preview'),  route: '/pub/js' }
   ],
 
   staticPaths: [
@@ -25,5 +25,3 @@ module.exports =
     { path: './node_modules/humane-js/themes/flatty.css', route: '/pub/humane-js' }
   ]
 };
-
-
