@@ -5,14 +5,7 @@ module.exports =
 { 'pub-pkg':'pub-pkg-editor',
 
   sources: [
-    { path:'./src', route:'/pub', fragmentDelim:true },
-  ],
-
-  generatorPlugins: [
-  ],
-
-  serverPlugins: [
-    './plugins/editor-server.js'
+    { path:'./src', route:'/pub' },
   ],
 
   browserScripts: [

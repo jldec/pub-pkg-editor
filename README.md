@@ -2,6 +2,16 @@
 
 Simple textarea-based editor for pub-server with live preview using jQuery.
 
+This editor runs in the browser and depends on modern browser [history management](http://caniuse.com/#search=history) support. It can be served either by pub-server, or from a static website.
+
+The `/pub/` window is split into a source editor section on the left and a preview on the right.
+
+Changes made to the source on the left are immediately reflected in the generated HTML on the right.
+
+Changes are also saved to disk immediately when running pub-server locally or when logged-in to a pub-gatekeeper in the cloud.
+
+![screenshot](/images/editor-screen.png)
+
 ### installation
 
 pub-pkg-editor is included with `pub-server` and enabled by default when the server is used from the command line.
@@ -10,14 +20,18 @@ To run `pub-server` _without_ the editor, use `pub -E` or set `opts.editor = fal
 
 ### how it works
 
-This editor is packaged as a pub-pkg (see `pub-config.js`)
+This editor is packaged as a pub-pkg (see `pub-config.js`). Any page can be opened in the editor by navigating to:
 
-- pages can be edited by prefixing their url path with `/pub`
-- a server-plugin handles the `/pub` route
-- when this route is requested the first time, `pub-generator` and a complete set of sources are loaded by the browser
-- the window is split into an editor section on the left and a preview on the right
-- the entire site can be navigated without any round trips to the server
-- output is rendered into an iframe so that website html is reproduced exactly
-- while navigating in the preview, the page or fragment markdown source is made editable via the textarea on the left
-- fragments require additional fragment-selection ui overlaid in preview when necessary
-- see [pub-preview](https://github.com/jldec/pub-preview) for more details.
+```
+/pub/?page={page-url}
+```
+
+The main window contains a simple textarea on the left, and preview pane on the right. An AJAX request loads pub-generator and source for the entire site. The preview pane holds an iframe initially loaded with the site's root page, but replaced immediately, with the content of the page specified in the page parameter.
+
+The preview has 2 modes
+
+1. In fragment selection mode (which is the default), clicking on a text fragment surrounded by dotted lines opens the markdown source for that fragment in the editor. In this mode, links within selectable text fragments cannot be navigated.
+
+2. fragment selection mode is toggled on/off using the finger button at the top right. When toggled off, links within text fragments can be navigated to reach other pages on the site.
+
+See [pub-preview](https://github.com/jldec/pub-preview) for more details.

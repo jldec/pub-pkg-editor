@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>pub editor - {{title}}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="/css/normalize.css">
-<link rel="stylesheet" href="/css/editor.css">
+<link rel="stylesheet" href="{{relPath}}/css/normalize.css">
+<link rel="stylesheet" href="{{relPath}}/css/editor.css">
 </head>
 <body>
 <div class="upload">
@@ -19,6 +19,6 @@
 {{option 'fqImages'}}/images/{{title}}
 {{/eachUpload}}
 </div>
-<script src="/pub/js/jquery-1.11.2.min.js"></script>
+<script src="{{relPath}}/pub/js/jquery-1.11.2.min.js"></script>
 </body>
 </html>

@@ -18,7 +18,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   var log = opts.log;
 
-  var origin = location.href.replace(/^(.*?:\/\/[^\/]+)\/.*$/,'$1' + '/pub')
+  // var origin = location.href.replace(/^(.*?:\/\/[^\/]+)\/.*$/,'$1' + '/pub')
 
   var $outer = $('.outer').get(0); // outermost div - for width and height
 
@@ -115,12 +115,12 @@ window.onGeneratorLoaded = function editorUI(generator) {
       e.preventDefault();
     });
 
-    $css = p$('<link rel="stylesheet" href="/pub/css/pub-preview.css">');
+    $css = p$('<link rel="stylesheet" href="./pub/css/pub-preview.css">');
     p$('head').append($css);
     $css.get(0).disabled = true;
     toggleFragments();
 
-    var $script = p$('<script src="/pub/js/pub-preview.js"></script>');
+    var $script = p$('<script src="./pub/js/pub-preview.js"></script>');
     p$('body').append($script);
 
     p$.editorLoaded = true;
@@ -155,16 +155,15 @@ window.onGeneratorLoaded = function editorUI(generator) {
     while (el && el.nodeName !== 'HTML' && !el.getAttribute('data-render-html')) { el = el.parentNode };
     if (el && (href = el.getAttribute('data-render-html'))) {
       bindEditor(generator.fragment$[href]);
+      e.preventDefault(); // will also stop pager because it checks for e.defaultPrevented
     }
-//    toggleFragments();  // single fragment select less confusing
-    e.preventDefault(); // will also stop pager because it checks for e.defaultPrevented
   }
 
   // navigation handler
   function handleNav(path, query, hash) {
     if (path) {
       // replace /pub/path... with /path...
-      history.replaceState(null, null, origin + path + query + hash);
+      // history.replaceState(null, null, origin + path + query + hash);
       bindEditor(generator.fragment$[path + hash]);
     }
     else {
