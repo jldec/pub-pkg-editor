@@ -15,6 +15,7 @@ var humane = require('humane-js').create({timeout:600});
 window.onGeneratorLoaded = function editorUI(generator) {
 
   var opts = generator.opts;
+  var u = generator.util;
 
   var log = opts.log;
 
@@ -115,12 +116,14 @@ window.onGeneratorLoaded = function editorUI(generator) {
       e.preventDefault();
     });
 
-    $css = p$('<link rel="stylesheet" href="./pub/css/pub-preview.css">');
+    var relPath = u.relPath(pwindow.location.pathname);
+
+    $css = p$('<link rel="stylesheet" href="' + relPath + '/pub/css/pub-preview.css">');
     p$('head').append($css);
     $css.get(0).disabled = true;
     toggleFragments();
 
-    var $script = p$('<script src="./pub/js/pub-preview.js"></script>');
+    var $script = p$('<script src="' + relPath + '/pub/js/pub-preview.js"></script>');
     p$('body').append($script);
 
     p$.editorLoaded = true;
