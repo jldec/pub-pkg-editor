@@ -116,7 +116,8 @@ window.onGeneratorLoaded = function editorUI(generator) {
       e.preventDefault();
     });
 
-    var relPath = u.relPath(pwindow.location.pathname);
+    pRef = pwindow.pubRef || {};
+    var relPath = pRef.relPath || '';
 
     $css = p$('<link rel="stylesheet" href="' + relPath + '/pub/css/pub-preview.css">');
     p$('head').append($css);
@@ -128,14 +129,6 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
     p$.editorLoaded = true;
     clearInterval(previewPoller);
-
-    // fixup custom preview after injecting js/css
-    var ploc = pwindow.location;
-    if (window.location.hash) { ploc.hash = window.location.hash; }
-    else {
-      generator.emit('update-view', ploc.pathname, ploc.search, ploc.hash);
-      if (!editor.binding) { handleNav(ploc.pathname, ploc.search, ploc.hash); }
-    }
   };
 
   function toggleFragments() {
