@@ -52,7 +52,8 @@ window.onGeneratorLoaded = function editorUI(generator) {
   generator.on('loaded', handleNav);
   generator.on('notify', function(s) { log(s); humane.log(s); });
 
-  $( window ).on('beforeunload', function() {
+  var onIOS = /iPad|iPhone/i.test(navigator.userAgent);
+  $(window).on(onIOS ? "pagehide" : "beforeunload", function() {
     log('beforeunload')
     generator.clientSaveHoldText();
     generator.clientSaveUnThrottled(); // throttled version may do nothing
