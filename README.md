@@ -2,7 +2,7 @@
 
 Simple textarea-based editor for pub-server with live preview using jQuery.
 
-This editor runs in the browser and depends on modern browser [history management](http://caniuse.com/#search=history) support. It can be served either by pub-server, or from a static website.
+This editor runs in the browser and depends on modern browser [history management](https://caniuse.com/#search=history) support. It can be served either by pub-server, or from a static website.
 
 The `/pub/` window is split into a source editor section on the left and a preview on the right.
 
@@ -16,7 +16,7 @@ Changes are also saved to disk immediately when running pub-server locally or wh
 
 pub-pkg-editor is included with `pub-server` and enabled by default when the server is used from the command line.
 
-To run `pub-server` _without_ the editor, use `pub -E` or set `opts.editor = false`, the default when running programmatically.
+To run `pub-server` _without_ the editor, use `pub -E` or set `opts.noEditor = true`, the default when running programmatically.
 
 ### how it works
 
