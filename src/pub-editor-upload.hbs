@@ -1,0 +1,11 @@
+<div class="upload">
+<h3>{{name}}</h3>
+<form method="POST" enctype="multipart/form-data" action="/admin/upload">
+{{{html}}}
+</form>
+{{#eachUpload}}<pre>![](/images/{{{name}}}){{s3Err}}
+</pre>
+<img src="{{opts 'fqImages'}}/images/{{name}}"><br>
+{{opts 'fqImages'}}/images/{{name}}
+{{/eachUpload}}
+</div>

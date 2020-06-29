@@ -19,7 +19,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   var log = opts.log;
 
-  // var origin = location.href.replace(/^(.*?:\/\/[^\/]+)\/.*$/,'$1' + '/pub')
+  var origin = location.href.replace(/^(.*?:\/\/[^\/]+)\/.*$/,'$1' + opts.editorPrefix);
 
   var $outer = $('.outer').get(0); // outermost div - for width and height
 
@@ -60,21 +60,10 @@ window.onGeneratorLoaded = function editorUI(generator) {
   });
 
   $('.editbutton').click(toggleFragments);
-
-  // show save button on the static host
-  if (opts.staticHost) {
-    $('.savebutton').removeClass('hide').click(generator.clientSave);
-  }
-
-  /* disabled menu links
-  // either do single action in editor or show iframe e.g for upload
-
   $('.panebutton').click(togglePanes);
   $('.menubutton').click(toggleForm);
-  $('.name').click(revertEdits);
+  // $('.name').click(revertEdits);
   $('.helpbutton').click(help);
-
-  */
 
   // initialize drag to adjust panes - use Text for type to satisfy IE
   $('.handle').attr('draggable', 'true').get(0)
@@ -123,7 +112,6 @@ window.onGeneratorLoaded = function editorUI(generator) {
     $css = p$('<link rel="stylesheet" href="' + relPath + '/pub/css/pub-preview.css">');
     p$('head').append($css);
     $css.get(0).disabled = true;
-    toggleFragments();
 
     var $script = p$('<script src="' + relPath + '/pub/js/pub-preview.js"></script>');
     p$('body').append($script);
@@ -152,6 +140,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
     while (el && el.nodeName !== 'HTML' && !el.getAttribute('data-render-html')) { el = el.parentNode };
     if (el && (href = el.getAttribute('data-render-html'))) {
       bindEditor(generator.fragment$[href]);
+      toggleFragments();  // single fragment select less confusing
       e.preventDefault(); // will also stop pager because it checks for e.defaultPrevented
     }
   }
@@ -159,8 +148,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
   // navigation handler
   function handleNav(path, query, hash) {
     if (path) {
-      // replace /pub/path... with /path...
-      // history.replaceState(null, null, origin + path + query + hash);
+      history.replaceState(null, null, origin + path + query + hash);
       bindEditor(generator.fragment$[path + hash]);
     }
     else {
@@ -268,4 +256,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   function max(x,y) { return x>y ? x : y; }
 
+  function help() {
+    pwindow.pager(generator.page$['/help'] ? '/help' : '/pub-editor-help');
+  }
 }
