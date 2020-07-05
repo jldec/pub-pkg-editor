@@ -19,14 +19,15 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   var log = opts.log;
 
-  var origin = location.href.replace(/^(.*?:\/\/[^\/]+)\/.*$/,'$1' + opts.editorPrefix);
+  var origin = location.href.replace(/^(.*?:\/\/[^\/]+)\/.*$/,'$1' + opts.staticRoot + opts.editorPrefix);
 
   var $outer = $('.outer').get(0); // outermost div - for width and height
 
   var editor =
-    { $name:   $('.name'),            // jquery name area in header
-      $edit:   $('textarea.editor'),  // jquery editor textarea
-      $save:   $('.savebutton'),      // jquery save button
+    { $name:    $('.name'),            // jquery name area in header
+      $edit:    $('textarea.editor'),  // jquery editor textarea
+      $updates: $('.updateslist'),
+      $uploads: $('.uploadsform'),
 
       // binding is the _href of fragment being edited
       // NOTE: don't bind by ref! recompile invalidates refs
@@ -59,9 +60,9 @@ window.onGeneratorLoaded = function editorUI(generator) {
     generator.clientSaveUnThrottled(); // throttled version may do nothing
   });
 
+  $('.commitbutton').click(toggleUpdates);
   $('.editbutton').click(toggleFragments);
-  $('.panebutton').click(togglePanes);
-  $('.menubutton').click(toggleForm);
+  $('.menubutton').click(toggleUploads);
   // $('.name').click(revertEdits);
   $('.helpbutton').click(help);
 
@@ -155,6 +156,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
       // reload
       bindEditor(generator.fragment$[editor.binding]);
     }
+    hideControls();
   }
 
   // change editingHref to a different fragment or page
@@ -204,17 +206,50 @@ window.onGeneratorLoaded = function editorUI(generator) {
     }
   }
 
-  // toggle panes between left/right and top/bottom
-  function togglePanes() {
-    $('.editorpane').toggleClass('row col left top');
-    $('.previewpane').toggleClass('row col right bottom');
-    isLeftRight = $('.handle').toggleClass('leftright topbottom').hasClass('leftright');
-    resizeEditor(-1);
+  function toggleUpdates() {
+    if (toggleControls(editor.$updates)) {
+      refreshUpdates(); // get latest updates when opening updates.
+    }
+    editor.$uploads.hide();
   }
 
-  function toggleForm() {
-    $('.form').toggle();
-    $('.editor').toggleClass('showform');
+  function toggleUploads() {
+    toggleControls(editor.$uploads);
+    editor.$updates.hide();
+  }
+
+  function toggleControls($x) {
+    if (!$x.is(':hidden')) {
+      $x.slideUp();
+      editor.$edit.removeClass('showcontrols');
+      return false;
+    }
+    else {
+      editor.$edit.addClass('showcontrols');
+      $x.slideDown();
+      return true;
+    }
+  }
+
+  function hideControls() {
+    editor.$updates.slideUp();
+    editor.$uploads.slideUp();
+    editor.$edit.removeClass('showcontrols');
+  }
+
+  function refreshUpdates() {
+    $.getJSON('/admin/pub-editor-diffs', function(data) {
+      var html = generator.renderTemplate( {
+        _href: '/pub-editor-updates',
+        diffs: data },
+      'pub-editor-updates')
+      editor.$updates.html(html).find('li').click(function() {
+        var item = $(this);
+        if (confirm('Commit' + item.attr('title').slice(0,500) + '...')) {
+          $.post('/admin/pub-editor-commit', { path:item.attr('data-file') });
+          hideControls();        }
+      })
+    });
   }
 
   // draggable pane adjuster

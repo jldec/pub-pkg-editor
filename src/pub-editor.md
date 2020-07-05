@@ -8,17 +8,9 @@ nocrawl: 1
 name: Upload Images
 template: pub-editor-upload
 doclayout: pub-editor-doclayout
+postandget: 1
 nocrawl: 1
 
 [?file?](upload)
 [?submit? Upload](-)  
 [Markdown will appear below. ?label?](- "instructions")
-
-
----- /admin/pub-editor-updates ----
-name: Updates pending
-template: pub-editor-updates
-doclayout: pub-editor-doclayout
-nocrawl: 1
-
-
