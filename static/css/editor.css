@@ -75,3 +75,8 @@ iframe.preview { width:100%; height:100%; border:none; margin:0; padding:0; }
 .previewpane { background-color:#fff; }
 
 div.upload { height:100%; padding:4px 8px; }
+div.editorupdates { padding:4px 0; }
+ul.difflist { padding:0; }
+li.difflistitem { list-style:none; cursor:pointer; }
+li.difflistitem:hover { background-color:#fff; }
+span.diffrevert { padding:2px 5px; border-radius:4px; color:#fff; background-color:#599; font-size: large; font-weight: bold; margin:0 4px; }

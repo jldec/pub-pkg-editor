@@ -10,7 +10,7 @@
  * copyright 2015-2020, Jürgen Leschner - github.com/jldec - MIT license
 */
 
-var humane = require('humane-js').create({timeout:600});
+var humane = require('humane-js').create({ waitForMove:true });
 
 window.onGeneratorLoaded = function editorUI(generator) {
 
@@ -56,14 +56,13 @@ window.onGeneratorLoaded = function editorUI(generator) {
   var onIOS = /iPad|iPhone/i.test(navigator.userAgent);
   $(window).on(onIOS ? "pagehide" : "beforeunload", function() {
     log('beforeunload')
-    generator.clientSaveHoldText();
-    generator.clientSaveUnThrottled(); // throttled version may do nothing
+    forceSave();
   });
 
   $('.commitbutton').click(toggleUpdates);
   $('.editbutton').click(toggleFragments);
   $('.menubutton').click(toggleUploads);
-  // $('.name').click(revertEdits);
+  $('.name').click(revertEdits);
   $('.helpbutton').click(help);
 
   // initialize drag to adjust panes - use Text for type to satisfy IE
@@ -86,6 +85,12 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   // restore pane dimensions
   resizeEditor(-1);
+
+  // called before unload or file commit/revert
+  function forceSave() {
+    generator.clientSaveHoldText();
+    generator.clientSaveUnThrottled();
+  }
 
   // preview iframe onload handler - initializes pwindow and $css
   function previewOnLoad() {
@@ -149,7 +154,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
   // navigation handler
   function handleNav(path, query, hash) {
     if (path) {
-      history.replaceState(null, null, origin + path + query + hash);
+      history.replaceState(null, null, origin + path + (query || '') + (hash || ''));
       bindEditor(generator.fragment$[path + hash]);
     }
     else {
@@ -171,6 +176,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
         editText(fragment._hdr + fragment._txt);
       }
       editor.binding = fragment._href;
+      showIfModified();
     }
     else {
       editor.$name.text('');
@@ -183,10 +189,15 @@ window.onGeneratorLoaded = function editorUI(generator) {
   // firefox gotcha: undo key mutates content after nav-triggered $edit.val()
   // assume that jquery takes care of removing keyup handler
   function editText(text) {
+    var pos = editor.$edit.get(0).selectionStart;
     var $newedit = editor.$edit.clone().val(text);
+    var newedit = $newedit.get(0);
     editor.$edit.replaceWith($newedit);
     editor.$edit = $newedit;
-    editor.$edit.on('keyup', editorUpdate);
+    $newedit.on('keyup', editorUpdate);
+    newedit.selectionStart = pos;
+    newedit.selectionEnd = pos;
+    editor.$edit.focus().click();
   }
 
   // register updates from editor using editor.binding
@@ -195,6 +206,19 @@ window.onGeneratorLoaded = function editorUI(generator) {
       if ('hold' === generator.clientUpdateFragmentText(editor.binding, editor.$edit.val())) {
         editor.holding = true;
       }
+      showIfModified();
+    }
+  }
+
+  function showIfModified() {
+    if (generator.isFragmentModified(editor.binding)) { editor.$name.addClass('modified') }
+    else { editor.$name.removeClass('modified'); }
+  }
+
+  function revertEdits() {
+    if (confirm('Are you sure you want to revert the edits from this session?')) {
+      generator.revertFragmentState(editor.binding);
+      showIfModified();
     }
   }
 
@@ -244,11 +268,24 @@ window.onGeneratorLoaded = function editorUI(generator) {
         diffs: data },
       'pub-editor-updates')
       editor.$updates.html(html).find('li').click(function() {
-        var item = $(this);
-        if (confirm('Commit' + item.attr('title').slice(0,500) + '...')) {
-          $.post('/admin/pub-editor-commit', { path:item.attr('data-file') });
-          hideControls();        }
-      })
+        forceSave();
+        if (confirm('Commit' + $(this).attr('title').slice(0,500) + '...')) {
+          var path = $(this).attr('data-file');
+          $.post('/admin/pub-editor-commit', { path:path });
+          hideControls();
+          return false;
+        }
+      }).find('span').click(function() {
+        var path = $(this).parent().attr('data-file');
+        forceSave();
+        if (confirm('Revert ' + path + '?')) {
+          $.post('/admin/pub-editor-revert', { path:path }, function(filedata) {
+            location.reload(); // brute force client reset after file-revert
+          });
+          hideControls();
+          return false;
+        }
+      });
     });
   }
 
