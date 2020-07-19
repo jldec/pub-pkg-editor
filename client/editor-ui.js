@@ -10,6 +10,8 @@
  * copyright 2015-2020, Jürgen Leschner - github.com/jldec - MIT license
 */
 
+const { date } = require('../../fmc/haydn-toolbelt');
+
 var humane = require('humane-js').create({ waitForMove:true });
 
 window.onGeneratorLoaded = function editorUI(generator) {
@@ -197,7 +199,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
     $newedit.on('keyup', editorUpdate);
     newedit.selectionStart = pos;
     newedit.selectionEnd = pos;
-    editor.$edit.focus().click();
+    editor.$edit.focus(hideControls).focus();
   }
 
   // register updates from editor using editor.binding
@@ -216,7 +218,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
   }
 
   function revertEdits() {
-    if (confirm('Are you sure you want to revert the edits from this session?')) {
+    if (generator.isFragmentModified(editor.binding) && confirm('Are you sure you want to revert the edits from this session?')) {
       generator.revertFragmentState(editor.binding);
       showIfModified();
     }
@@ -244,43 +246,57 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   function toggleControls($x) {
     if (!$x.is(':hidden')) {
-      $x.slideUp();
+      $x.slideUp(150);
       editor.$edit.removeClass('showcontrols');
       return false;
     }
     else {
       editor.$edit.addClass('showcontrols');
-      $x.slideDown();
+      $x.slideDown(150);
       return true;
     }
   }
 
   function hideControls() {
-    editor.$updates.slideUp();
-    editor.$uploads.slideUp();
+    editor.$updates.slideUp(150);
+    editor.$uploads.slideUp(150);
     editor.$edit.removeClass('showcontrols');
   }
 
   function refreshUpdates() {
+    forceSave();
     $.getJSON('/admin/pub-editor-diffs', function(data) {
       var html = generator.renderTemplate( {
         _href: '/pub-editor-updates',
+        name: data.length + ' Updates',
         diffs: data },
       'pub-editor-updates')
-      editor.$updates.html(html).find('li').click(function() {
-        forceSave();
-        if (confirm('Commit' + $(this).attr('title').slice(0,500) + '...')) {
-          var path = $(this).attr('data-file');
-          $.post('/admin/pub-editor-commit', { path:path });
+      var li$ = editor.$updates.html(html).find('li');
+      li$.click(function() {
+        var href = $(this).attr('data-href');
+        if (href) pwindow.pager(href);
+      });
+      li$.find('span.diffcommit').click(function() {
+        var path = $(this).parent().attr('data-file');
+        var difftext = $(this).parent().attr('title').slice(24);
+        if (confirm('Confirm commit:\n' + difftext + '\n')) {
+          $.post('/admin/pub-editor-commit', { path:path }, function() {
+            generator.emit('notify', 'Commit OK:');
+          }).fail(function(resp) {
+            generator.emit('notify', 'Commit failed, please reload browser and try again.\n' + resp.responseText);
+          });
           hideControls();
           return false;
         }
-      }).find('span').click(function() {
+      });
+      li$.find('span.diffrevert').click(function() {
         var path = $(this).parent().attr('data-file');
-        forceSave();
-        if (confirm('Revert ' + path + '?')) {
-          $.post('/admin/pub-editor-revert', { path:path }, function(filedata) {
+        var difftext = $(this).parent().attr('title').slice(24);
+        if (confirm('Confirm revert:\n' + difftext + '\n')) {
+          $.post('/admin/pub-editor-revert', { path:path }, function() {
             location.reload(); // brute force client reset after file-revert
+          }).fail(function(resp) {
+            generator.emit('notify', 'Revert failed, please reload browser and try again.\n' + resp.responseText);
           });
           hideControls();
           return false;
