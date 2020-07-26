@@ -10,8 +10,6 @@
  * copyright 2015-2020, Jürgen Leschner - github.com/jldec - MIT license
 */
 
-const { date } = require('../../fmc/haydn-toolbelt');
-
 var humane = require('humane-js').create({ waitForMove:true });
 
 window.onGeneratorLoaded = function editorUI(generator) {
@@ -281,7 +279,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
         var difftext = $(this).parent().attr('title').slice(24);
         if (confirm('Confirm commit:\n' + difftext + '\n')) {
           $.post('/admin/pub-editor-commit', { path:path }, function() {
-            generator.emit('notify', 'Commit OK:');
+            generator.emit('notify', 'Commit ' + path + ' OK');
           }).fail(function(resp) {
             generator.emit('notify', 'Commit failed, please reload browser and try again.\n' + resp.responseText);
           });
