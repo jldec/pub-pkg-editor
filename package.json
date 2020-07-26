@@ -1,6 +1,6 @@
 {
   "name": "pub-pkg-editor",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "simple markdown editor for pub-server",
   "main": "pub-config.js",
   "dependencies": {
@@ -12,7 +12,8 @@
     "client/",
     "src/",
     "static/",
-    "pub-config.js"
+    "pub-config.js",
+    "generator-plugin.js"
   ],
   "repository": {
     "type": "git",
