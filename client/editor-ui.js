@@ -10,7 +10,7 @@
  * copyright 2015-2020, Jürgen Leschner - github.com/jldec - MIT license
 */
 
-var humane = require('humane-js').create({timeout:600});
+var humane = require('humane-js').create({ waitForMove:true });
 
 window.onGeneratorLoaded = function editorUI(generator) {
 
@@ -19,14 +19,15 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   var log = opts.log;
 
-  // var origin = location.href.replace(/^(.*?:\/\/[^\/]+)\/.*$/,'$1' + '/pub')
+  var origin = location.href.replace(/^(.*?:\/\/[^\/]+)\/.*$/,'$1' + opts.staticRoot + opts.editorPrefix);
 
   var $outer = $('.outer').get(0); // outermost div - for width and height
 
   var editor =
-    { $name:   $('.name'),            // jquery name area in header
-      $edit:   $('textarea.editor'),  // jquery editor textarea
-      $save:   $('.savebutton'),      // jquery save button
+    { $name:    $('.name'),            // jquery name area in header
+      $edit:    $('textarea.editor'),  // jquery editor textarea
+      $updates: $('.updateslist'),
+      $uploads: $('.uploadsform'),
 
       // binding is the _href of fragment being edited
       // NOTE: don't bind by ref! recompile invalidates refs
@@ -55,26 +56,14 @@ window.onGeneratorLoaded = function editorUI(generator) {
   var onIOS = /iPad|iPhone/i.test(navigator.userAgent);
   $(window).on(onIOS ? "pagehide" : "beforeunload", function() {
     log('beforeunload')
-    generator.clientSaveHoldText();
-    generator.clientSaveUnThrottled(); // throttled version may do nothing
+    forceSave();
   });
 
+  $('.commitbutton').click(toggleUpdates);
   $('.editbutton').click(toggleFragments);
-
-  // show save button on the static host
-  if (opts.staticHost) {
-    $('.savebutton').removeClass('hide').click(generator.clientSave);
-  }
-
-  /* disabled menu links
-  // either do single action in editor or show iframe e.g for upload
-
-  $('.panebutton').click(togglePanes);
-  $('.menubutton').click(toggleForm);
+  $('.menubutton').click(toggleUploads);
   $('.name').click(revertEdits);
   $('.helpbutton').click(help);
-
-  */
 
   // initialize drag to adjust panes - use Text for type to satisfy IE
   $('.handle').attr('draggable', 'true').get(0)
@@ -96,6 +85,12 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   // restore pane dimensions
   resizeEditor(-1);
+
+  // called before unload or file commit/revert
+  function forceSave() {
+    generator.clientSaveHoldText();
+    generator.clientSaveUnThrottled();
+  }
 
   // preview iframe onload handler - initializes pwindow and $css
   function previewOnLoad() {
@@ -123,7 +118,6 @@ window.onGeneratorLoaded = function editorUI(generator) {
     $css = p$('<link rel="stylesheet" href="' + relPath + '/pub/css/pub-preview.css">');
     p$('head').append($css);
     $css.get(0).disabled = true;
-    toggleFragments();
 
     var $script = p$('<script src="' + relPath + '/pub/js/pub-preview.js"></script>');
     p$('body').append($script);
@@ -152,6 +146,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
     while (el && el.nodeName !== 'HTML' && !el.getAttribute('data-render-html')) { el = el.parentNode };
     if (el && (href = el.getAttribute('data-render-html'))) {
       bindEditor(generator.fragment$[href]);
+      toggleFragments();  // single fragment select less confusing
       e.preventDefault(); // will also stop pager because it checks for e.defaultPrevented
     }
   }
@@ -159,14 +154,14 @@ window.onGeneratorLoaded = function editorUI(generator) {
   // navigation handler
   function handleNav(path, query, hash) {
     if (path) {
-      // replace /pub/path... with /path...
-      // history.replaceState(null, null, origin + path + query + hash);
+      history.replaceState(null, null, origin + path + (query || '') + (hash || ''));
       bindEditor(generator.fragment$[path + hash]);
     }
     else {
       // reload
       bindEditor(generator.fragment$[editor.binding]);
     }
+    hideControls();
   }
 
   // change editingHref to a different fragment or page
@@ -181,6 +176,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
         editText(fragment._hdr + fragment._txt);
       }
       editor.binding = fragment._href;
+      showIfModified();
     }
     else {
       editor.$name.text('');
@@ -193,10 +189,15 @@ window.onGeneratorLoaded = function editorUI(generator) {
   // firefox gotcha: undo key mutates content after nav-triggered $edit.val()
   // assume that jquery takes care of removing keyup handler
   function editText(text) {
+    var pos = editor.$edit.get(0).selectionStart;
     var $newedit = editor.$edit.clone().val(text);
+    var newedit = $newedit.get(0);
     editor.$edit.replaceWith($newedit);
     editor.$edit = $newedit;
-    editor.$edit.on('keyup', editorUpdate);
+    $newedit.on('keyup', editorUpdate);
+    newedit.selectionStart = pos;
+    newedit.selectionEnd = pos;
+    editor.$edit.focus(hideControls).focus();
   }
 
   // register updates from editor using editor.binding
@@ -205,6 +206,19 @@ window.onGeneratorLoaded = function editorUI(generator) {
       if ('hold' === generator.clientUpdateFragmentText(editor.binding, editor.$edit.val())) {
         editor.holding = true;
       }
+      showIfModified();
+    }
+  }
+
+  function showIfModified() {
+    if (generator.isFragmentModified(editor.binding)) { editor.$name.addClass('modified') }
+    else { editor.$name.removeClass('modified'); }
+  }
+
+  function revertEdits() {
+    if (generator.isFragmentModified(editor.binding) && confirm('Are you sure you want to revert the edits from this session?')) {
+      generator.revertFragmentState(editor.binding);
+      showIfModified();
     }
   }
 
@@ -216,17 +230,77 @@ window.onGeneratorLoaded = function editorUI(generator) {
     }
   }
 
-  // toggle panes between left/right and top/bottom
-  function togglePanes() {
-    $('.editorpane').toggleClass('row col left top');
-    $('.previewpane').toggleClass('row col right bottom');
-    isLeftRight = $('.handle').toggleClass('leftright topbottom').hasClass('leftright');
-    resizeEditor(-1);
+  function toggleUpdates() {
+    if (toggleControls(editor.$updates)) {
+      refreshUpdates(); // get latest updates when opening updates.
+    }
+    editor.$uploads.hide();
   }
 
-  function toggleForm() {
-    $('.form').toggle();
-    $('.editor').toggleClass('showform');
+  function toggleUploads() {
+    toggleControls(editor.$uploads);
+    editor.$updates.hide();
+  }
+
+  function toggleControls($x) {
+    if (!$x.is(':hidden')) {
+      $x.slideUp(150);
+      editor.$edit.removeClass('showcontrols');
+      return false;
+    }
+    else {
+      editor.$edit.addClass('showcontrols');
+      $x.slideDown(150);
+      return true;
+    }
+  }
+
+  function hideControls() {
+    editor.$updates.slideUp(150);
+    editor.$uploads.slideUp(150);
+    editor.$edit.removeClass('showcontrols');
+  }
+
+  function refreshUpdates() {
+    forceSave();
+    $.getJSON('/admin/pub-editor-diffs', function(data) {
+      var html = generator.renderTemplate( {
+        _href: '/pub-editor-updates',
+        name: data.length + ' Updates',
+        diffs: data },
+      'pub-editor-updates')
+      var li$ = editor.$updates.html(html).find('li');
+      li$.click(function() {
+        var href = $(this).attr('data-href');
+        if (href) pwindow.pager(href);
+      });
+      li$.find('span.diffcommit').click(function() {
+        var path = $(this).parent().attr('data-file');
+        var difftext = $(this).parent().attr('title').slice(24);
+        if (confirm('Confirm commit:\n' + difftext + '\n')) {
+          $.post('/admin/pub-editor-commit', { path:path }, function() {
+            generator.emit('notify', 'Commit ' + path + ' OK');
+          }).fail(function(resp) {
+            generator.emit('notify', 'Commit failed, please reload browser and try again.\n' + resp.responseText);
+          });
+          hideControls();
+          return false;
+        }
+      });
+      li$.find('span.diffrevert').click(function() {
+        var path = $(this).parent().attr('data-file');
+        var difftext = $(this).parent().attr('title').slice(24);
+        if (confirm('Confirm revert:\n' + difftext + '\n')) {
+          $.post('/admin/pub-editor-revert', { path:path }, function() {
+            location.reload(); // brute force client reset after file-revert
+          }).fail(function(resp) {
+            generator.emit('notify', 'Revert failed, please reload browser and try again.\n' + resp.responseText);
+          });
+          hideControls();
+          return false;
+        }
+      });
+    });
   }
 
   // draggable pane adjuster
@@ -268,4 +342,7 @@ window.onGeneratorLoaded = function editorUI(generator) {
 
   function max(x,y) { return x>y ? x : y; }
 
+  function help() {
+    pwindow.pager(generator.page$['/help'] ? '/help' : '/pub-editor-help');
+  }
 }
