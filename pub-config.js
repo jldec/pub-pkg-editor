@@ -4,7 +4,9 @@
 module.exports =
 { 'pub-pkg':'pub-pkg-editor',
 
-  sources: './src',
+  sources: [
+    { path:'./src', writable:true }
+  ],
 
   generatorPlugins: './generator-plugin.js',
 
