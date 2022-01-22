@@ -7,7 +7,7 @@
  * - edit-mode captures clicks purely for selecting areas of content to edit
  * - nav-mode makes the iframe work just like a normal website
  *
- * copyright 2015-2020, Jürgen Leschner - github.com/jldec - MIT license
+ * Copyright (c) 2015-2022 Jürgen Leschner - github.com/jldec - MIT license
 */
 
 var humane = require('humane-js').create({ waitForMove:true });
