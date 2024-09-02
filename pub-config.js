@@ -17,6 +17,6 @@ module.exports =
 
   staticPaths: [
     { path: './static/css', route: '/pub/css' },
-    { path: './node_modules/humane-js/themes/flatty.css', route: '/pub/humane-js' }
+    { path: './static/humane-js/flatty.css', route: '/pub/humane-js' }
   ]
 };
